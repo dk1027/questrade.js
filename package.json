@@ -1,0 +1,8 @@
+{
+  "name": "QuestradeJS",
+  "version": "1.0.0",
+  "description": "Node wrapper for the Questrade API",
+  "dependencies": {
+    "request": "*"
+  }
+}
