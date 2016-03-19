@@ -1,10 +1,31 @@
 var request = require('request');
 
 function questrade(options){
+	this.options = {}
 	if(options){
-			this.access_token = options.access_token;
-			this.api_server = options.api_server;
+			this.options.access_token = options.access_token;
+			this.options.api_server = options.api_server;
 	}
+}
+
+// Save the options to path. Default: ./config.js
+// WARNING: Make sure you do not accidentally share the config file as it contains your questrade access token
+questrade.prototype.save = function(path){
+	var save_path = path ? path : "config.js"
+	var fs = require("fs");
+	var self = this;
+	fs.writeFile(save_path, JSON.stringify(self.options, null, 2), function(err) {
+	    if(err) {
+	        return console.log(err);
+	    }
+	});
+}
+
+// Load the options from path. Default: ./config.js
+questrade.prototype.load = function(path){
+	var fs = require("fs");
+	var load_path = path ? path : "config.js"
+	this.options = JSON.parse(fs.readFileSync(load_path));
 }
 
 questrade.prototype.login = function(refresh_token, callback){
@@ -17,8 +38,8 @@ questrade.prototype.login = function(refresh_token, callback){
 			console.log(err);
 			console.log(body);
 			var o = JSON.parse(body);
-			self.access_token = o.access_token;
-			self.api_server = o.api_server;
+			self.options.access_token = o.access_token;
+			self.options.api_server = o.api_server;
 			if (callback) callback(err);
 		}
 	);
@@ -26,16 +47,16 @@ questrade.prototype.login = function(refresh_token, callback){
 
 questrade.prototype.toString = function()
 {
-	return "access_token : " + this.access_token;
+	return "access_token : " + this.options.access_token;
 }
 
 questrade.prototype.accounts = function(callback)
 {
 	request.get(
 		{
-			url : this.api_server + 'v1/accounts',
+			url : this.options.api_server + 'v1/accounts',
 			auth : {
-				bearer : this.access_token
+				bearer : this.options.access_token
 			}
 		},
 		function(err, response, body){
@@ -52,9 +73,9 @@ questrade.prototype.positions = function(id, callback)
 {
 	request.get(
 		{
-			url : this.api_server + 'v1/accounts/' + id + '/positions',
+			url : this.options.api_server + 'v1/accounts/' + id + '/positions',
 			auth : {
-				bearer : this.access_token
+				bearer : this.options.access_token
 			}
 		},
 		function(err, response, body){
